@@ -1,0 +1,65 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Shared Renovate policy for this org's published Kotlin Multiplatform libraries. Opt in with \"extends\": [\"local>meshtastic/.github:kmp-library\"]. Named rather than default.json on purpose: a default preset in this repo is auto-detected org-wide and would apply to every repo in the org. Repo-specific bounds (a plugin's compiler ceiling, an artifact's version scheme) belong in that repo's own renovate.json — packageRules apply in order and the last match wins, so a local rule always overrides this preset. The recurring principle: an update may be held, but never held invisibly. Hence no `schedule` (a window leaves updates pending with no PR to notice), no `enabledManagers` (an allow-list silently disables the managers it omits), and `minimumReleaseAgeBehaviour: timestamp-optional` (a datasource that exposes no release timestamp — git refs among them — would otherwise be withheld indefinitely by the soak window rather than raised).",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "commitMessageTopic": "{{depName}}",
+  "labels": ["dependencies"],
+  "configMigration": true,
+  "minimumReleaseAge": "3 days",
+  "minimumReleaseAgeBehaviour": "timestamp-optional",
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["dependencies", "security"],
+    "minimumReleaseAge": "0 days"
+  },
+  "packageRules": [
+    {
+      "description": "Baseline: automerge non-major updates. Every hold below overrides this rule, so it must stay first — packageRules apply in order and the last match wins. `pin` is deliberately absent: Renovate does not apply minimumReleaseAge to pin updates, so automerging one would land a version that never served the soak window.",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    },
+    {
+      "description": "Group the Ktor modules so they move together.",
+      "groupName": "ktor",
+      "matchPackageNames": ["/^io\\.ktor[.:]/"]
+    },
+    {
+      "description": "Group the kotlinx libraries and gradle plugins (coroutines, io, datetime, atomicfu, kover, binary-compatibility-validator). These are not compiler-locked — deliberately separate from the kotlin-toolchain group below.",
+      "groupName": "kotlinx",
+      "matchPackageNames": ["/^org\\.jetbrains\\.kotlinx[.:]/"]
+    },
+    {
+      "description": "Group Compose Multiplatform artifacts so the stack moves in lockstep rather than one artifact at a time.",
+      "groupName": "compose-multiplatform",
+      "matchPackageNames": ["/^org\\.jetbrains\\.compose[.:]/"]
+    },
+    {
+      "description": "HOLD: the Kotlin-compiler-locked toolchain, in one human-reviewed PR. KSP, Mokkery, the Koin compiler plugin and SKIE each pin to a Kotlin compiler version and break when bumped out of lockstep. SKIE belongs here because its supported-Kotlin ceiling gates the whole toolchain: the two must land together, and as separate PRs one waits on the other with nothing linking them. The `[.:]` after kotlin excludes org.jetbrains.kotlinx, which is not compiler-locked.",
+      "groupName": "kotlin-toolchain",
+      "matchManagers": ["gradle"],
+      "matchPackageNames": [
+        "/^org\\.jetbrains\\.kotlin[.:]/",
+        "/^com\\.google\\.devtools\\.ksp/",
+        "/^dev\\.mokkery/",
+        "/^io\\.insert-koin\\.compiler\\.plugin/",
+        "/^co\\.touchlab\\.skie/"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "HOLD: first-party org.meshtastic artifacts are the cross-repo coupling edges — the wire schema and the published klibs. A bump here can break a CONSUMER repo whose CI never ran on this PR, because klib ABI is forward-only: a library must not be compiled with a newer Kotlin than its consumers. Renovate has no cross-repo awareness and cannot check that consumer, so these always get a human. This matches Maven coordinates only: a protobufs git-submodule pointer has the git URL as its packageName and is governed by the repo's own rules, not this hold.",
+      "matchPackageNames": ["/^org\\.meshtastic[.:]/"],
+      "automerge": false,
+      "addLabels": ["first-party"]
+    },
+    {
+      "description": "HOLD: never automerge major updates.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    }
+  ]
+}
