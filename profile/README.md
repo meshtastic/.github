@@ -4,3 +4,8 @@ Each member of the mesh can send and view text messages and enable optional GPS 
 
 The radios automatically create a mesh to forward packets as needed, so everyone in the group can receive messages from even the furthest member.
 The radios will optionally work with your phone, but no phone is required.
+
+---
+Meshtastic® is a registered trademark of Meshtastic LLC. Meshtastic software
+components are released under various licenses, see GitHub for details. No warranty
+is provided, use at your own risk.
