@@ -1,12 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Shared Renovate policy for this org's published Kotlin Multiplatform libraries. Opt in with \"extends\": [\"local>meshtastic/.github:kmp-library\"]. Named rather than default.json on purpose: a default preset in this repo is auto-detected org-wide and would apply to every repo in the org. Repo-specific bounds (a plugin's compiler ceiling, an artifact's version scheme) belong in that repo's own renovate.json — packageRules apply in order and the last match wins, so a local rule always overrides this preset. The recurring principle: an update may be held, but never held invisibly. Hence no `schedule` (a window leaves updates pending with no PR to notice), no `enabledManagers` (an allow-list silently disables the managers it omits), and `minimumReleaseAgeBehaviour: timestamp-optional` (a datasource that exposes no release timestamp — git refs among them — would otherwise be withheld indefinitely by the soak window rather than raised).",
+  "description": "Shared Renovate policy for this org's published Kotlin Multiplatform libraries. Opt in with \"extends\": [\"local>meshtastic/.github:kmp-library\"]. Named rather than default.json on purpose: a default preset in this repo is auto-detected org-wide and would apply to every repo in the org. Repo-specific bounds (a plugin's compiler ceiling, an artifact's version scheme) belong in that repo's own renovate.json — packageRules apply in order and the last match wins, so a local rule always overrides this preset. The recurring principle: an update may be held, but never held invisibly. Hence no `schedule` (a window leaves updates pending with no PR to notice), no `enabledManagers` (an allow-list silently disables the managers it omits), and `minimumReleaseAgeBehaviour: timestamp-optional` (a datasource that exposes no release timestamp — git refs among them — would otherwise be withheld indefinitely by the soak window rather than raised). `rebaseWhen: conflicted` rebases only on a real conflict, since the default rebases every open PR after each merge and burns the org's 20 hosted jobs.",
   "extends": [
     "config:recommended",
     ":semanticCommitTypeAll(chore)"
   ],
   "commitMessageTopic": "{{depName}}",
   "labels": ["dependencies"],
+  "rebaseWhen": "conflicted",
   "configMigration": true,
   "minimumReleaseAge": "3 days",
   "minimumReleaseAgeBehaviour": "timestamp-optional",
